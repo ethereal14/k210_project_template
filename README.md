@@ -6,16 +6,26 @@
 This SDK is for Kendryte K210 without OS support.
 If you have any questions, please be free to contact us.
 
+## 更新 2022-03-17
+
+增加了构建(build)、烧录(download)、打开串口(terminal)的选项。
+
+- 构建：输入 `./build.sh -b`
+- 烧录：输入 `./build.sh -d`，烧录需要指定串口号，Linux 下可以通过`ls /dev/tty*`查看
+- 打开串口：输入`./build.sh -t`，打开串口也需要指定串口号
+
+烧录功能使用了勘智官方提供的 kflash、打开串口使用的是 miniterm
+
+在使用 k210 串口时，发现串口默认模式是 rs232，所以在使用时需要把 miniterm 的 RTS、DTR 打开。我们可以使用`void uart_set_work_mode(uart_device_number_t uart_channel, uart_work_mode_t work_mode)`将串口设置成普通模式，这样我们需要在 miniterm 中把 RTS、DTR 设置为 0。这里默认设置的 0
+
 ## 说明
 
-在官方的SDK上增加了`build.sh`的shell脚本。目的是为了复杂减少命令的输入。更多功能有待完善。
+在官方的 SDK 上增加了`build.sh`的 shell 脚本。目的是为了复杂减少命令的输入。更多功能有待完善。
 
 ```shell
-#! /bin/bash
-
 dirs=$(pwd)/src/
 
-for dir in $(ls $dirs);do 
+for dir in $(ls $dirs);do
     cd $dirs/$dir;
     ProjectName=$(pwd)
 done
@@ -23,26 +33,45 @@ done
 cd ../../
 
 ProjectName=${ProjectName##*/}
-echo $ProjectName
-echo $(pwd)
 
-if [ ! -d "./build/" ];then
-    mkdir ./build
-else
-    rm -rf ./build
-    mkdir ./build
-fi
+while getopts "bd:t:c" opt
+do
+    case $opt in
+        b)
 
-cd build
+        if [ ! -d "./build/" ];then
+            mkdir ./build
+        else
+            rm -rf ./build
+            mkdir ./build
+        fi
 
-build_opts=" .. "
-build_opts="${build_opts} -DPROJ=${ProjectName}"
-build_opts="${build_opts} -DTOOLCHAIN=/opt/kendryte-toolchain/bin"
-cmake ${build_opts}
-make
+        cd build
+
+        build_opts=" .. "
+        build_opts="${build_opts} -DPROJ=${ProjectName}"
+        build_opts="${build_opts} -DTOOLCHAIN=/opt/kendryte-toolchain/bin"
+        cmake ${build_opts}
+        make
+        ;;
+
+        d)
+        kflash -p $OPTARG ./build/${ProjectName}.bin
+        ;;
+        t)
+        miniterm $OPTARG 115200 --rts 0 --dtr 0
+        ;;
+
+        c)
+        rm -rf ./build
+        ;;
+        ?)
+        echo "未知参数"
+        exit 1;;
+    esac
+done
+
 ```
-
-
 
 ## Usage
 
