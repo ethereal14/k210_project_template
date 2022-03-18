@@ -6,6 +6,31 @@
 This SDK is for Kendryte K210 without OS support.
 If you have any questions, please be free to contact us.
 
+## 更新 2022-03-18
+
+以前的版本新建一个工程就得把`standalone-sdk`拷贝一次，很麻烦，仔细阅读官方的`README`后发现在使用 cmake 构建工程是只需要指明`-DPROJ`的值就可以了。
+
+例如：
+
+```
+-src
+    -led
+    -uart
+    -hello_world
+```
+
+在这个目录下我们只需要`cmake .. -DPROJ=<ProjectName> -DTOOLCHAIN=/opt/kendryte-toolchain/` 就可以构建出我们的工程。所以`build.sh`也做出相应的改进：
+
+- 构建：输入 `./build.sh -b [ProjectName]`
+- 烧录：输入 `./build.sh -d [Port],[ProjectName]`，Port 为串口号
+- 打开串口：输入`./build.sh -t`，打开串口也需要指定串口号
+
+示例：
+
+```shell
+./build.sh -b led -d /dev/ttyUSB0,led -t /dev/ttyUSB0
+```
+
 ## 更新 2022-03-17
 
 增加了构建(build)、烧录(download)、打开串口(terminal)的选项。
