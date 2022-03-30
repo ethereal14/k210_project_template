@@ -6,6 +6,12 @@
 This SDK is for Kendryte K210 without OS support.
 If you have any questions, please be free to contact us.
 
+## 更新 2022-03-30
+
+原来的文件`build.sh`和目录`build`一样，使用`tab`键不能完全补齐，很不爽就把文件名改了
+
+其他和`build.sh`一样操作
+
 ## 更新 2022-03-18
 
 以前的版本新建一个工程就得把`standalone-sdk`拷贝一次，很麻烦，仔细阅读官方的`README`后发现在使用 cmake 构建工程是只需要指明`-DPROJ`的值就可以了。
